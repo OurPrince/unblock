@@ -17,15 +17,19 @@ window.addEventListener('__aisu_xhrCapture', (e) => {
 });
 
 // ── Storage: toggle on/off ───────────────────────────────────────────────────
+function syncToggle(enabled) {
+  bypassEnabled = enabled !== false;
+  // Send state to interceptor.js (MAIN world)
+  window.dispatchEvent(new CustomEvent('__aisu_toggle', { detail: bypassEnabled }));
+}
+
 chrome.storage.local.get(['bypassEnabled'], (data) => {
-  bypassEnabled = data.bypassEnabled !== false;
-  console.log(`🛡️ AI Studio Unblock ${bypassEnabled ? 'active ✅' : 'disabled ❌'}`);
+  syncToggle(data.bypassEnabled);
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== 'local') return;
   if (changes.bypassEnabled) {
-    bypassEnabled = changes.bypassEnabled.newValue;
-    console.log(`🛡️ Bypass ${bypassEnabled ? 'ENABLED ✅' : 'DISABLED ❌'}`);
+    syncToggle(changes.bypassEnabled.newValue);
   }
 });
