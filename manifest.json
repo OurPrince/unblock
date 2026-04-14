@@ -1,10 +1,14 @@
 {
   "manifest_version": 3,
   "name": "AI Studio Unblock",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Removes 'Content Blocked' warnings in Google AI Studio. The model's text stays visible instead of being hidden.",
-  "permissions": ["storage"],
-  "host_permissions": ["https://aistudio.google.com/*"],
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://aistudio.google.com/*"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -20,15 +24,23 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://aistudio.google.com/*"],
-      "js": ["interceptor.js"],
+      "matches": [
+        "https://aistudio.google.com/*"
+      ],
+      "js": [
+        "interceptor.js"
+      ],
       "run_at": "document_start",
       "world": "MAIN"
     },
     {
-      "matches": ["https://aistudio.google.com/*"],
-      "js": ["content.js"],
-      "run_at": "document_idle"
+      "matches": [
+        "https://aistudio.google.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
     }
   ]
 }
