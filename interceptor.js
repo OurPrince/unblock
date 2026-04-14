@@ -148,8 +148,11 @@
   function _sanitize(raw) {
     let s = raw;
 
-    // Числовий finishReason: [],[8] → [],[1]
+    // Числовий finishReason (3.0+): [],[8] → [],[1]
     s = s.replace(/\[\],\d+/g, '[],1');
+
+    // Числовий finishReason (2.5 і нижче): [null,8] → [null,1]
+    s = s.replace(/\[null,\d+\]/g, '[null,1]');
 
     // Текст помилки блокування
     s = s.replace(
