@@ -21,6 +21,15 @@
   const URL_MARKER = 'GenerateContent';
   const EVENT_NAME = '__aisu_xhrCapture';
 
+  let bypassEnabled = true;
+  window.addEventListener('__aisu_toggle', (e) => {
+    bypassEnabled = e.detail;
+    console.log(
+      `%c[Unblock] 🛡️ Bypass is now ${bypassEnabled ? 'ACTIVE ✅' : 'DISABLED ❌'}`,
+      bypassEnabled ? 'color:#66bb6a' : 'color:#ff5252'
+    );
+  });
+
   // ── Зберігаємо оригінали ДО Angular ────────────────────────────────
   const _origOpen = XMLHttpRequest.prototype.open;
   const _origSend = XMLHttpRequest.prototype.send;
@@ -55,6 +64,7 @@
 
     // ── 1. ABORT BLOCK ───────────────────────────────────────────────
     xhr.abort = function () {
+      if (!bypassEnabled) return Object.getPrototypeOf(xhr).abort ? Object.getPrototypeOf(xhr).abort.call(xhr) : null;
       console.log(
         '%c[Unblock] 🚫 abort() blocked — stream continues',
         'color:#ff9800;font-weight:bold'
@@ -66,7 +76,7 @@
       Object.defineProperty(xhr, 'responseText', {
         get: function () {
           const raw = _nativeRT.call(this);
-          if (!raw) return raw;
+          if (!raw || !bypassEnabled) return raw;
           const clean = _sanitize(raw);
           if (clean !== raw && !didLogSanitize) {
             didLogSanitize = true;
@@ -87,6 +97,7 @@
           const rt = this.responseType;
           if (!rt || rt === 'text') {
             const raw = _nativeR.call(this);
+            if (!bypassEnabled) return raw;
             return (raw && typeof raw === 'string') ? _sanitize(raw) : raw;
           }
           return _nativeR.call(this);
@@ -147,13 +158,13 @@
     );
 
     // Публічний API fallback (рядкові enum)
-    s = s.replace(/"SAFETY"/g,              '"STOP"');
-    s = s.replace(/"RECITATION"/g,          '"STOP"');
-    s = s.replace(/"PROHIBITED_CONTENT"/g,  '"STOP"');
-    s = s.replace(/"IMAGE_SAFETY"/g,        '"STOP"');
-    s = s.replace(/"SPII"/g,               '"STOP"');
-    s = s.replace(/"BLOCKLIST"/g,           '"STOP"');
-    s = s.replace(/"blocked"\s*:\s*true/g,  '"blocked":false');
+    s = s.replace(/"SAFETY"/g, '"STOP"');
+    s = s.replace(/"RECITATION"/g, '"STOP"');
+    s = s.replace(/"PROHIBITED_CONTENT"/g, '"STOP"');
+    s = s.replace(/"IMAGE_SAFETY"/g, '"STOP"');
+    s = s.replace(/"SPII"/g, '"STOP"');
+    s = s.replace(/"BLOCKLIST"/g, '"STOP"');
+    s = s.replace(/"blocked"\s*:\s*true/g, '"blocked":false');
 
     return s;
   }
